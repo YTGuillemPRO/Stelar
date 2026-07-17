@@ -7,10 +7,26 @@ const {
     ChannelType
 } = require('discord.js');
 const express = require('express');
+const path = require('path'); // <- NECESARIO PARA LA WEB
 
-// 1. Servidor web para mantener a Render y UptimeRobot felices
+// 1. Servidor web y configuración del Dashboard
 const app = express();
-app.get('/', (req, res) => res.send('¡Stelar está online y funcionando a tope!'));
+app.set('view engine', 'ejs'); 
+app.set('views', path.join(__dirname, 'views')); 
+
+app.get('/', (req, res) => {
+    // Si el bot está arrancando, evitamos que la web dé error
+    if (!client.user) return res.send('El bot se está encendiendo, recarga en 5 segundos...');
+    
+    // Inyectamos los datos reales del bot en la página web
+    res.render('index', {
+        nombreBot: client.user.username,
+        avatarBot: client.user.displayAvatarURL(),
+        servidores: client.guilds.cache.size,
+        latencia: Math.round(client.ws.ping)
+    });
+});
+
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Servidor web en el puerto ${port}`));
 
@@ -339,7 +355,7 @@ client.on('interactionCreate', async (interaction) => {
             case 'purge': {
                 if (!member.permissions.has(PermissionFlagsBits.ManageMessages)) return errorReply('Necesitas el permiso `Gestionar Mensajes`.');
                 const amount = options.getInteger('cantidad');
-                const messages = await channel.bulkDelete(amount + 1, true); // +1 para borrar el mensaje del comando
+                const messages = await channel.bulkDelete(amount + 1, true); // +1 para borrar el comando
                 return interaction.reply({ content: `🧹 ¡He borrado **${messages.size - 1}** mensajes!`, ephemeral: true });
             }
             case 'lock': {
