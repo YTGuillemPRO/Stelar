@@ -1,1 +1,13 @@
-
+{
+  "name": "stelar-bot",
+  "version": "1.0.0",
+  "description": "Bot de Discord alojado en Render",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "express": "^4.18.2"
+  }
+}
